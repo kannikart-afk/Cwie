@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Control Panel | CWIE PSU Surat Thani</title>
+    <meta name="description" content="ระบบจัดการประกาศงานสหกิจศึกษาและฝึกงาน สำหรับเจ้าหน้าที่ CWIE มหาวิทยาลัยสงขลานครินทร์ วิทยาเขตสุราษฎร์ธานี">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#003C71">
+
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23003C71'/%3E%3Ccircle cx='10' cy='22' r='3' fill='%2359CBE8'/%3E%3Cpath d='M10 22C14 12 18 10 24 8' stroke='%23009CDE' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='24' cy='8' r='3.5' fill='%23fff'/%3E%3C/svg%3E">
+
+    <!-- External CDN Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <link rel="stylesheet" href="theme.css">
+    <link rel="stylesheet" href="admin-style.css">
+    <script src="supabase-config.js"></script>
+
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                fontFamily: { sans: ['Sarabun', 'sans-serif'], heading: ['Prompt', 'sans-serif'] },
+                colors: {
+                    psublue: { DEFAULT: '#003C71', dark: '#04213D', light: '#009CDE', soft: '#EAF6FD' },
+                    psuocean: '#315DAE', psuriver: '#59CBE8', sritrang: '#B6B8DC'
+                }
+            }
+        }
+    }
+    </script>
+    <style>
+        .hover-card-float {
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .hover-card-float:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px -10px rgba(0, 60, 113, 0.12);
+        }
+
+        ::-webkit-scrollbar {
+            width: 7px;
+            height: 7px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f8fafc;
+            border-radius: 6px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 6px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        input::placeholder, select::placeholder {
+            color: #64748b !important;
+            opacity: 1 !important;
+        }
+
+        .swal2-container {
+            z-index: 999999 !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans">
+
+    <!-- 🔐 LOGIN MODAL -->
+    <div id="login-modal" class="login-modal-overlay" style="display: none;">
+        <div class="login-split-card shadow-2xl border border-slate-100 rounded-3xl overflow-hidden">
+            <div class="login-banner-left bg-gradient-to-br from-psublue-dark via-psublue to-psuocean text-white p-10 flex flex-col justify-between relative overflow-hidden">
+                <div class="absolute -top-[30%] -right-[10%] w-[60%] h-[80%] rounded-full bg-psuriver/20 blur-[100px] pointer-events-none"></div>
+                <div class="relative z-10">
+                    <div class="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center mb-6 border border-white/20 shadow-lg">
+                        <svg class="w-6 h-6 text-sky-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l-.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06-.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+                    </div>
+                    <span class="eyebrow eyebrow--on-dark">PSU Surat Thani</span>
+                    <h2 class="text-2xl font-bold mt-2 font-heading tracking-tight">Admin Control Panel</h2>
+                </div>
+                <p class="relative z-10 text-xs text-slate-200 leading-relaxed mt-8 font-body">
+                    ระบบสารสนเทศหลังบ้านสำหรับจัดการประกาศรับสมัครงาน สหกิจศึกษา และทุนฝึกงาน มหาวิทยาลัยสงขลานครินทร์
+                </p>
+            </div>
+
+            <div class="login-form-right p-10 bg-white flex flex-col justify-center">
+                <h3 class="login-title-main text-xl font-bold text-slate-800 font-heading">เข้าสู่ระบบเจ้าหน้าที่</h3>
+                <p class="login-subtitle-main text-xs text-slate-500 mb-6 font-body">กรุณาระบุบัญชีแอดมินเพื่อจัดการข้อมูลระบบ</p>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5 font-heading">อีเมลผู้ดูแลระบบ</label>
+                        <input type="email" id="admin-email" autocomplete="email" class="pastel-input w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-psu-sky/30 text-slate-800 font-medium" placeholder="admin@psu.ac.th">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5 font-heading">รหัสผ่าน</label>
+                        <input type="password" id="admin-password" autocomplete="current-password" class="pastel-input w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-psu-sky/30 text-slate-800 font-medium" placeholder="••••••••">
+                    </div>
+                    <button id="btn-login" onclick="loginAdmin()" class="btn-login-submit w-full bg-gradient-to-r from-psublue to-psuocean text-white font-bold text-sm py-3 rounded-xl shadow-md shadow-psublue/20 hover:opacity-90 transition-all font-heading flex items-center justify-center gap-2">
+                        <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>
+                        เข้าสู่ระบบ
+                    </button>
+                </div>
+
+                <p id="login-error" class="login-error-msg"></p>
+
+                <div class="mt-6 text-center">
+                    <a href="index.html" class="text-xs text-slate-400 hover:text-psu-sky transition-colors font-body">← กลับไปยังหน้า Dashboard ผู้ใช้</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🌐 NAVBAR แอดมิน (มีเฉพาะปุ่มเปิดหน้า Dashboard กลับหน้าแรก) -->
+    <nav class="w-full bg-white/95 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-sky-100">
+        <div class="max-w-[1360px] mx-auto px-6 lg:px-8 w-full h-20 flex items-center">
+            
+            <div class="flex-1 flex justify-start items-center">
+                <a href="index.html" class="font-heading font-extrabold text-2xl tracking-tighter flex items-center hover:opacity-80 transition-opacity">
+                    <span class="text-psublue-dark">C</span><span class="text-psu-sky">WIE</span>
+                    <span class="text-xs ml-3 text-slate-400 font-normal tracking-normal border-l border-slate-300 pl-3">Admin Portal</span>
+                </a>
+            </div>
+
+            <div class="hidden lg:flex items-center justify-center font-heading text-[15px] font-semibold text-psublue-dark">
+                ระบบจัดการหลังบ้าน (Management Control Panel)
+            </div>
+
+            <div class="flex-1 flex justify-end items-center gap-3">
+                <a href="index.html" class="bg-slate-100 text-slate-700 px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-slate-200 transition-colors flex items-center gap-1.5 font-heading shadow-sm">
+                    <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-4"/></svg>
+                    เปิดหน้า Dashboard
+                </a>
+                <button onclick="logoutAdmin()" id="btn-logout" class="bg-rose-50 text-rose-600 px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-rose-100 transition-colors flex items-center gap-1.5 font-heading shadow-sm" style="display: none;">
+                    <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+                    ออกจากระบบ
+                </button>
+            </div>
+            
+        </div>
+    </nav>
+
+    <!-- ⚙️ ADMIN CONTROL PANEL CONTAINER -->
+    <div class="admin-container max-w-[1360px] mx-auto px-6 lg:px-8 py-8" id="admin-panel-container" style="display: none;">
+
+        <div class="stats-grid grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="stat-box bg-white p-6 rounded-2xl shadow-md border border-slate-100 flex items-center justify-between hover-card-float border-l-4 border-l-psublue">
+                <div>
+                    <div class="stat-label text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">ข้อมูลในระบบทั้งหมด</div>
+                    <div class="stat-val text-4xl font-extrabold text-psublue-dark font-heading" id="stat-total-jobs">0 รายการ</div>
+                </div>
+                <div class="stat-icon-bg w-14 h-14 rounded-2xl bg-psublue-soft text-psublue flex items-center justify-center shadow-inner">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg>
+                </div>
+            </div>
+            <div class="stat-box bg-white p-6 rounded-2xl shadow-md border border-slate-100 flex items-center justify-between hover-card-float border-l-4 border-l-psu-sky">
+                <div>
+                    <div class="stat-label text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">อัปเดตข้อมูลล่าสุด</div>
+                    <div class="stat-val text-lg font-bold text-sky-600 font-heading mt-1" id="stat-last-update">-</div>
+                </div>
+                <div class="stat-icon-bg w-14 h-14 rounded-2xl bg-sky-50 text-psu-sky flex items-center justify-center shadow-inner">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-card bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-6 hover-card-float">
+            <h2 class="card-title text-base font-bold text-psublue-dark font-heading mb-3 flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-psu-sky"></span>
+                นำเข้าข้อมูลประกาศงาน CWIE (.xlsx, .csv)
+            </h2>
+            <div class="flex flex-col md:flex-row gap-3 items-center">
+                <input type="file" id="excel-file" accept=".xlsx, .csv" title="เลือกไฟล์ Excel" aria-label="เลือกไฟล์ Excel" class="file-input w-full md:w-auto bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs font-body cursor-pointer">
+                <button onclick="handleFileUpload()" class="btn-preview bg-psublue text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-psublue-dark transition-colors flex items-center gap-2 font-heading shadow-sm">
+                    <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3-3 3 3"/><path d="M12 8v8"/><path d="M20 16.5A4.5 4.5 0 0 0 18 8h-1.3A6 6 0 1 0 5 13.5"/></svg>
+                    1. พรีวิวข้อมูล (Preview)
+                </button>
+            </div>
+            <p class="upload-note text-xs text-slate-400 mt-2 font-body">* ระบบจะค้นหาตำแหน่งคอลัมน์ให้อัตโนมัติจากชื่อหัวตารางในไฟล์</p>
+        </div>
+
+        <div class="admin-card bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-6" id="preview-section" style="display: none;">
+            <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+                <div class="flex items-center gap-2.5">
+                    <h2 class="card-title text-base font-bold text-psublue-dark font-heading m-0">ตัวอย่างข้อมูลก่อนบันทึก</h2>
+                    <span id="preview-count-badge" class="badge-count bg-sky-50 text-sky-600 px-3 py-1 rounded-full text-xs font-semibold">0 รายการ</span>
+                </div>
+                <button onclick="syncToDatabase()" id="btn-sync" class="btn-sync bg-emerald-600 text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-emerald-700 transition-colors flex items-center gap-2 font-heading shadow-sm">
+                    <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>
+                    2. บันทึกเข้าระบบ (Sync &amp; Publish)
+                </button>
+            </div>
+
+            <div class="table-container border border-slate-100 rounded-xl overflow-x-auto max-h-[400px]">
+                <table class="preview-table w-full text-left text-xs font-body">
+                    <thead>
+                        <tr class="bg-slate-100/70 text-psublue-dark font-semibold border-b border-slate-200/60 font-heading whitespace-nowrap">
+                            <th class="p-3.5 pl-4">บริษัท/หน่วยงาน</th>
+                            <th class="p-3.5">ตำแหน่งงาน/ทุน</th>
+                            <th class="p-3.5">สถานที่ปฏิบัติงาน</th>
+                            <th class="p-3.5">เงินเดือน/เบี้ยเลี้ยง</th>
+                            <th class="p-3.5">การติดต่อ/ช่องทางสมัคร</th>
+                            <th class="p-3.5 pr-4">สถานะ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="preview-body" class="divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="admin-card bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-6 hover-card-float">
+            <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+                <div>
+                    <h2 class="card-title text-base font-bold text-psublue-dark font-heading mb-1 flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-psu-sky"></span>
+                        ข้อมูลประกาศงานในระบบปัจจุบัน
+                    </h2>
+                    <span class="text-xs text-slate-400 font-body">รายการตำแหน่งงานที่กำลังเปิดแสดงอยู่บนหน้า Dashboard</span>
+                </div>
+                <div class="flex gap-2 flex-wrap">
+                    <button type="button" onclick="openAddJobModal()" class="btn-accent-action bg-psu-sky text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-sky-600 transition-colors flex items-center gap-1.5 font-heading shadow-sm">
+                        <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                        เพิ่มงานใหม่
+                    </button>
+                    <button type="button" onclick="deleteAllJobs()" class="btn-danger-pastel bg-rose-50 text-rose-600 px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-rose-100 transition-colors flex items-center gap-1.5 font-heading">
+                        <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4M12 17h.01"/></svg>
+                        ล้างข้อมูลงานทั้งหมด
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3 mb-4">
+                <div class="relative w-full md:w-72">
+                    <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                    <input type="text" id="current-jobs-search" oninput="filterCurrentJobsTable()" placeholder="ค้นหาบริษัท / ตำแหน่ง / สถานที่..." class="pastel-input w-full bg-slate-50 border border-slate-200 py-2.5 pl-10 pr-4 rounded-xl text-xs font-body outline-none focus:ring-2 focus:ring-psublue/30 text-slate-800 font-medium">
+                </div>
+                <button type="button" onclick="exportCurrentJobsToExcel()" class="btn bg-slate-100 text-slate-700 px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-slate-200 transition-colors flex items-center gap-1.5 font-heading">
+                    <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+                    ส่งออกเป็น Excel
+                </button>
+            </div>
+
+            <div class="table-container border border-slate-100 rounded-xl overflow-x-auto max-h-[420px]">
+                <table class="preview-table w-full text-left text-xs font-body">
+                    <thead>
+                        <tr class="bg-slate-100/70 text-psublue-dark font-semibold border-b border-slate-200/60 font-heading whitespace-nowrap">
+                            <th class="p-3.5 pl-4" style="width: 50px;">ID</th>
+                            <th class="p-3.5">บริษัท/หน่วยงาน</th>
+                            <th class="p-3.5">ตำแหน่งงาน/ทุน</th>
+                            <th class="p-3.5">สถานที่</th>
+                            <th class="p-3.5">เงินเดือน/เบี้ยเลี้ยง</th>
+                            <th class="p-3.5">สถานะ</th>
+                            <th class="p-3.5 pr-4 text-center" style="width: 140px;">จัดการงาน</th>
+                        </tr>
+                    </thead>
+                    <tbody id="current-jobs-body" class="divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
+
+            <div class="flex justify-between items-center mt-4 flex-wrap gap-3">
+                <div id="current-jobs-pagination-info" class="text-xs text-slate-400 font-medium font-body"></div>
+                <div id="current-jobs-pagination" class="flex gap-1.5 items-center"></div>
+            </div>
+        </div>
+
+        <div class="admin-card bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-6 hover-card-float">
+            <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+                <div>
+                    <h2 class="card-title text-base font-bold text-psublue-dark font-heading mb-1 flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-psu-sky"></span>
+                        ประวัติการอัปโหลดข้อมูล (Upload History)
+                    </h2>
+                    <span class="text-xs text-slate-400 font-body">บันทึกย้อนหลังการอัปโหลดไฟล์เข้าระบบ</span>
+                </div>
+                <button onclick="clearUploadHistory()" class="btn-warn-pastel bg-amber-50 text-amber-700 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-amber-100 transition-colors flex items-center gap-1.5 font-heading">
+                    <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                    ล้างประวัติทั้งหมด
+                </button>
+            </div>
+
+            <div class="table-container border border-slate-100 rounded-xl overflow-x-auto max-h-[300px]">
+                <table class="preview-table w-full text-left text-xs font-body">
+                    <thead>
+                        <tr class="bg-slate-100/70 text-psublue-dark font-semibold border-b border-slate-200/60 font-heading">
+                            <th class="p-3.5 pl-4">วัน-เวลาที่อัปโหลด</th>
+                            <th class="p-3.5">ชื่อไฟล์</th>
+                            <th class="p-3.5">จำนวนรายการ</th>
+                            <th class="p-3.5">ผู้ดำเนินการ</th>
+                            <th class="p-3.5">สถานะ</th>
+                            <th class="p-3.5 pr-4 text-center" style="width: 90px;">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-body" class="divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal เพิ่ม/แก้ไขงาน -->
+    <div id="admin-job-modal" style="display: none; position: fixed; inset: 0; z-index: 1000; background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 1rem; overflow-y: auto;" role="dialog" aria-modal="true" aria-labelledby="form-modal-title">
+        <div class="bg-white w-full max-w-lg rounded-3xl p-6 shadow-2xl border border-slate-100 text-left relative max-h-[85vh] overflow-y-auto font-body my-auto">
+            <div class="flex justify-between items-center mb-4 border-b pb-3 font-heading sticky top-0 bg-white z-10">
+                <h3 id="form-modal-title" class="text-base font-bold text-slate-800">เพิ่มประกาศงานใหม่</h3>
+                <button type="button" onclick="closeAdminJobModal()" aria-label="ปิดหน้าต่าง" class="text-slate-400 hover:text-slate-600 text-xl font-bold px-2">&times;</button>
+            </div>
+
+            <input type="hidden" id="form-job-id">
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1 font-heading">บริษัท / หน่วยงาน *</label>
+                    <input type="text" id="form-company" class="pastel-input w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-psu-sky/30 text-slate-800 font-medium" placeholder="เช่น บริษัท เทคโซลูชัน จำกัด">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1 font-heading">ตำแหน่งงาน / ทุน *</label>
+                    <input type="text" id="form-position" class="pastel-input w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-psu-sky/30 text-slate-800 font-medium" placeholder="เช่น Frontend Developer">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1 font-heading">สถานที่ปฏิบัติงาน</label>
+                        <input type="text" id="form-location" class="pastel-input w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-psu-sky/30 text-slate-800 font-medium" placeholder="เช่น สุราษฎร์ธานี">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1 font-heading">รูปแบบงาน</label>
+                        <select id="form-work-format" class="pastel-input w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-psu-sky/30 text-slate-800 font-medium">
+                            <option value="Onsite">Onsite</option>
+                            <option value="Hybrid">Hybrid</option>
+                            <option value="Remote / Online">Remote / Online</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1 font-heading">เงินเดือน / เบี้ยเลี้ยง</label>
+                        <input type="text" id="form-salary" class="pastel-input w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-psu-sky/30 text-slate-800 font-medium" placeholder="เช่น 15,000 บาท">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1 font-heading">จำนวนรับ (โควต้า)</label>
+                        <input type="text" id="form-quota" class="pastel-input w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-psu-sky/30 text-slate-800 font-medium" placeholder="เช่น 2 อัตรา">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1 font-heading">ประเภทงาน / โครงการ</label>
+                        <select id="form-job-type" class="pastel-input w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-psu-sky/30 text-slate-800 font-medium">
+                            <option value="สหกิจศึกษา">สหกิจศึกษา</option>
+                            <option value="ฝึกงาน">ฝึกงาน</option>
+                            <option value="รับเข้าทำงาน">รับเข้าทำงาน</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1 font-heading">สถานะประกาศ</label>
+                        <select id="form-status" class="pastel-input w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-psu-sky/30 text-slate-800 font-medium">
+                            <option value="เปิดรับสมัครอยู่">เปิดรับสมัครอยู่</option>
+                            <option value="ปิดรับสมัครแล้ว">ปิดรับสมัครแล้ว</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1 font-heading">วันปิดรับสมัคร</label>
+                    <input type="text" id="form-deadline" class="pastel-input w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-psu-sky/30 text-slate-800 font-medium" placeholder="เช่น 31 ธ.ค. 2569">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1 font-heading">ลิงก์สมัครงาน / ข้อมูลติดต่อ</label>
+                    <input type="text" id="form-contact" class="pastel-input w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-psu-sky/30 text-slate-800 font-medium" placeholder="https://form.gle/xxx">
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 mt-6 pt-3 border-t font-heading sticky bottom-0 bg-white z-10">
+                <button type="button" onclick="closeAdminJobModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-xl font-semibold text-xs hover:bg-slate-300">ยกเลิก</button>
+                <button type="button" onclick="saveJobManual()" class="btn-primary-action bg-psublue text-white px-5 py-2 rounded-xl text-xs font-bold hover:bg-psublue-dark transition-colors shadow-sm">
+                    บันทึกข้อมูล
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🦶 Footer -->
+    <footer class="max-w-[1360px] mx-auto px-6 py-6 text-xs text-slate-400 flex justify-between items-center font-body border-t border-slate-200 mt-8">
+        <span>© 2026 มหาวิทยาลัยสงขลานครินทร์ วิทยาเขตสุราษฎร์ธานี · แผงควบคุมสำหรับเจ้าหน้าที่เท่านั้น</span>
+        <a href="index.html" class="text-psu-sky hover:underline font-semibold">กลับสู่หน้า Dashboard สาธารณะ →</a>
+    </footer>
+
+    <script src="shared-utils.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

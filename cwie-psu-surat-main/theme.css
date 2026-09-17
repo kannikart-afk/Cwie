@@ -1,0 +1,138 @@
+/* ✅ ต้องอยู่บรรทัดบนสุดเสมอ เพื่อให้ฟอนต์โหลดสำเร็จ */
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700&display=swap');
+
+/* ============================================================
+   CWIE PSU Surat Thani — Dashboard (index.html) page-specific styles
+   หมายเหตุ: โทเค็นสี/ฟอนต์/คอมโพเนนต์ร่วม (status-pill, eyebrow ฯลฯ)
+   ย้ายไปอยู่ที่ theme.css แล้ว ไฟล์นี้ต้องโหลด "หลัง" theme.css เสมอ
+   ============================================================ */
+
+:root {
+    --font-heading: 'Prompt', sans-serif;
+    --font-body: 'Sarabun', sans-serif;
+    
+    /* 🌌 โทนสีใหม่: ดำ-น้ำเงินพรีเมียม (Obsidian Navy & PSU Identity) */
+    --psu-deep: #021526;        /* น้ำเงินเข้มเกือบดำ (ดูลึกลับและหรูหรา) */
+    --psu-deep-ink: #041E3A;    /* น้ำเงินเข้มสำหรับพื้นหลังการ์ด/แบนเนอร์ */
+    --psu-ocean: #1B3C59;       /* น้ำเงินกลาง */
+    --psu-sky: #38BDF8;         /* ฟ้าสว่าง สไตล์โมเดิร์น */
+    --psu-river: #7DD3FC;       /* ฟ้าอ่อนเรืองแสง */
+    --psu-sritrang: #93C5FD;    /* ฟ้าอมม่วงอ่อน */
+    --psu-sky-soft: rgba(56, 189, 248, 0.1);
+    
+    --paper: #0B132B;           /* สีพื้นหลังภาพรวมของเว็บไซต์ (ดำอมน้ำเงินเข้มมาก) */
+    --surface: #141E33;         /* สีพื้นหลังของการ์ดและกล่องข้อมูลต่างๆ */
+    --ink: #F1F5F9;             /* สีตัวอักษรหลัก (ขาวสว่างอ่านง่าย) */
+    --ink-muted: #94A3B8;       /* สีตัวอักษรรอง (เทาอ่อน) */
+    --line: #1E293B;            /* สีเส้นขอบ (Dark Border) */
+
+    --status-open: #34D399;
+    --status-open-bg: rgba(52, 211, 153, 0.12);
+    --status-closed: #FB7185;
+    --status-closed-bg: rgba(251, 113, 133, 0.12);
+    --status-warn: #FBBF24;
+    --status-warn-bg: rgba(251, 191, 36, 0.12);
+}
+
+* { box-sizing: border-box; }
+body { font-family: var(--font-body); background-color: var(--paper); color: var(--ink); margin: 0; -webkit-font-smoothing: antialiased; }
+h1, h2, h3, h4, h5, h6, .font-heading { font-family: var(--font-heading) !important; letter-spacing: -0.01em; color: #FFFFFF; }
+a { color: inherit; }
+
+/* ============================================================
+   Hero band — ลวดลาย "เส้นทาง" (Journey Route)
+   ============================================================ */
+.hero-band {
+    position: relative;
+    overflow: hidden;
+    border-radius: 28px;
+    background: linear-gradient(135deg, var(--psu-deep) 0%, var(--psu-deep-ink) 65%, #021530 100%);
+    color: #fff;
+    padding: 40px 36px;
+    isolation: isolate;
+}
+
+.hero-route-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    opacity: 0.9;
+}
+
+.hero-band__content {
+    position: relative;
+    z-index: 1;
+    max-width: 640px;
+}
+
+.hero-band__title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: clamp(22px, 3.4vw, 32px);
+    line-height: 1.25;
+    margin: 10px 0 10px;
+}
+
+.hero-band__desc {
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.78);
+    max-width: 46ch;
+}
+
+@media (max-width: 640px) {
+    .hero-band { padding: 28px 22px; border-radius: 22px; }
+}
+
+/* ============================================================
+   UI Components
+   ============================================================ */
+.eyebrow { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-heading); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--psu-sky); }
+.eyebrow::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--psu-sky); box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2); flex-shrink: 0; }
+
+.status-pill { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-heading); font-weight: 600; font-size: 11px; padding: 3px 10px 3px 8px; border-radius: 999px; white-space: nowrap; }
+.status-pill .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; background: currentColor; }
+.status-pill--open { background: var(--status-open-bg); color: var(--status-open); }
+.status-pill--closed { background: var(--status-closed-bg); color: var(--status-closed); }
+
+.badge-count { display: inline-flex; align-items: center; background: var(--psu-sky-soft); color: var(--psu-sky); font-size: 11px; font-weight: 600; padding: 3px 12px; border-radius: 999px; border: 1px solid rgba(56,189,248,0.2); font-family: var(--font-heading); white-space: nowrap; }
+.company-avatar { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 10px; font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: #fff; flex-shrink: 0; }
+
+.empty-state, .loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 48px 16px; color: var(--ink-muted); }
+.loading-state { flex-direction: row; padding: 28px 16px; }
+.loading-spinner { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--line); border-top-color: var(--psu-sky); animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.site-footer { max-width: 1360px; margin: 0 auto; padding: 32px 24px 60px; color: var(--ink-muted); font-size: 12.5px; line-height: 1.7; background: var(--surface); border-top: 1px solid var(--line); }
+.site-footer__grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 24px; margin-bottom: 20px; }
+@media (max-width: 768px) { .site-footer__grid { grid-template-columns: 1fr; } }
+.site-footer__title { font-family: var(--font-heading); font-weight: 700; color: #FFFFFF; font-size: 13.5px; margin: 0; }
+.site-footer__sub { margin: 1px 0 0; color: var(--psu-sky); }
+.site-footer__heading { display: block; font-family: var(--font-heading); font-weight: 700; color: #FFFFFF; font-size: 12.5px; margin-bottom: 8px; }
+.site-footer__links, .site-footer__contact { display: flex; flex-direction: column; gap: 6px; }
+.site-footer__links a { text-decoration: none; color: var(--ink-muted); }
+.site-footer__links a:hover { color: var(--psu-sky); text-decoration: underline; }
+
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--psu-sky); outline-offset: 2px; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #070D1A; }
+::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+.swal2-popup { font-family: var(--font-body) !important; background: #141E33 !important; color: #fff !important; border-radius: 20px !important; border: 1px solid #1E293B !important; }
+.swal2-title { font-family: var(--font-heading) !important; color: #fff !important; }
+
+.skeleton-bar { height: 12px; border-radius: 6px; background: linear-gradient(90deg, #1E293B 25%, #334155 37%, #1E293B 63%); background-size: 400% 100%; animation: skeleton-shine 1.4s ease infinite; }
+@keyframes skeleton-shine { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+
+.page-ellipsis {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    color: var(--ink-muted);
+    font-size: 13px;
+    user-select: none;
+}

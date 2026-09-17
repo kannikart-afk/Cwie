@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CWIE PSU Surat Thani Campus 2026 | ระบบประกาศงานสหกิจศึกษาและฝึกงาน</title>
+    <meta name="description" content="รวมประกาศรับสมัครงาน สหกิจศึกษา และทุนฝึกงานจากสถานประกอบการจริง สำหรับนักศึกษามหาวิทยาลัยสงขลานครินทร์ วิทยาเขตสุราษฎร์ธานี">
+    <meta name="theme-color" content="#003C71">
+
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23003C71'/%3E%3Ccircle cx='10' cy='22' r='3' fill='%2359CBE8'/%3E%3Cpath d='M10 22C14 12 18 10 24 8' stroke='%23009CDE' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='24' cy='8' r='3.5' fill='%23fff'/%3E%3C/svg%3E">
+
+    <!-- External CDN Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <link rel="stylesheet" href="theme.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="supabase-config.js"></script>
+
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                fontFamily: {
+                    sans: ['Sarabun', 'sans-serif'],
+                    heading: ['Prompt', 'sans-serif']
+                },
+                colors: {
+                    psublue: { DEFAULT: '#003C71', dark: '#04213D', light: '#009CDE', soft: '#EAF6FD' },
+                    psuocean: '#315DAE',
+                    psuriver: '#59CBE8',
+                    sritrang: '#B6B8DC'
+                }
+            }
+        }
+    }
+    </script>
+
+    <style>
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 100px;
+        }
+        .nav-link {
+            color: #334155;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            position: relative;
+        }
+        .nav-link:hover {
+            color: #009CDE;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: #009CDE;
+            transition: width 0.2s ease;
+            border-radius: 2px;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .hover-card-float {
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .hover-card-float:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px -10px rgba(0, 60, 113, 0.12);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans">
+
+    <!-- 🌐 1. แถบเมนูด้านบน -->
+    <nav class="w-full bg-white/95 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-sky-100">
+        <div class="max-w-[1360px] mx-auto px-6 lg:px-8 w-full h-20 flex items-center">
+            
+            <div class="flex-1 flex justify-start items-center">
+                <a href="#" class="font-heading font-extrabold text-2xl tracking-tighter flex items-center hover:opacity-80 transition-opacity">
+                    <span class="text-psublue-dark">C</span><span class="text-psu-sky">WIE</span>
+                    <span class="text-xs ml-3 text-slate-400 font-normal tracking-normal border-l border-slate-300 pl-3">PSU Surat Thani</span>
+                </a>
+            </div>
+
+            <div class="hidden lg:flex items-center justify-center space-x-10 font-heading text-[14.5px] font-medium">
+                <a href="#" class="nav-link text-psublue-dark font-semibold">หน้าแรก</a>
+                <a href="#stats-section" class="nav-link">สถิติภาพรวม</a>
+                <a href="#job-list-section" class="nav-link">ประกาศงาน</a>
+                <a href="#footer-section" class="nav-link">ติดต่อหน่วยงาน</a>
+            </div>
+
+            <!-- ส่วนขวา: มีปุ่มแอดมินแบบซ่อน (จะแสดงอัตโนมัติเฉพาะตอนที่คุณล็อกอินแอดมินแล้วเท่านั้น) -->
+            <div class="flex-1 flex justify-end items-center gap-4">
+                <!-- ปุ่มเข้าหน้าแอดมิน (ซ่อนไว้เป็นค่าเริ่มต้นด้วย style="display: none;") -->
+                <a href="admin.html" id="admin-shortcut-btn" style="display: none;" class="bg-amber-500 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-amber-600 transition-colors shadow-md font-heading items-center gap-1.5">
+                    ⚙️ กลับหน้าแอดมิน
+                </a>
+
+                <div class="hidden xl:flex items-center gap-2 text-xs font-semibold text-slate-500 border-r border-slate-200 pr-4 font-body bg-sky-50/60 px-3 py-1.5 rounded-full">
+                    <svg class="w-4 h-4 text-psu-sky animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                    081-270-1159
+                </div>
+            </div>
+            
+        </div>
+    </nav>
+
+    <!-- 🌟 2. ภาพปก (Hero Banner) -->
+    <div class="relative w-full h-[380px] md:h-[440px] flex items-center mb-10 overflow-hidden bg-gradient-to-br from-psublue-dark via-psublue to-psuocean border-b-4 border-psuriver shadow-inner">
+        <div class="absolute inset-0 pointer-events-none">
+            <div class="absolute -top-[30%] -right-[10%] w-[60%] h-[80%] rounded-full bg-psuriver/20 blur-[120px]"></div>
+            <div class="absolute -bottom-[20%] -left-[10%] w-[50%] h-[60%] rounded-full bg-sky-400/15 blur-[140px]"></div>
+            <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#ffffff 1.5px, transparent 1.5px); background-size: 36px 36px;"></div>
+        </div>
+        <div class="relative z-10 max-w-[1360px] mx-auto px-6 lg:px-8 w-full flex flex-col justify-center items-center text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-sky-200 text-xs font-semibold mb-6 shadow-lg">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                ระบบสารสนเทศสหกิจศึกษา ปีการศึกษา 2026
+            </div>
+            <h1 class="text-4xl md:text-[58px] font-extrabold text-white font-heading tracking-tight mb-4 drop-shadow-lg">
+                CWIE <span class="text-psuriver font-light mx-2">|</span> PSU
+            </h1>
+            <p class="text-lg md:text-xl text-slate-100 font-medium font-body max-w-2xl leading-relaxed mb-3 drop-shadow">
+                Cooperative and Work Integrated Education
+            </p>
+            <p class="text-sm md:text-base text-sky-200 font-medium font-body tracking-wide bg-black/20 px-6 py-2 rounded-xl backdrop-blur-sm border border-white/10">
+                ระบบประกาศงานสหกิจศึกษา มหาวิทยาลัยสงขลานครินทร์ วิทยาเขตสุราษฎร์ธานี
+            </p>
+        </div>
+    </div>
+
+    <!-- 📋 3. เนื้อหาบอร์ดงาน -->
+    <div class="max-w-[1360px] mx-auto px-6 lg:px-8 w-full pb-12">
+
+        <div id="stats-section" class="scroll-mt-24"></div>
+
+        <!-- 📊 Stat Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 mt-[-70px] relative z-20">
+            <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-100 flex items-center justify-between hover-card-float">
+                <div>
+                    <div class="text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">ประกาศทั้งหมด</div>
+                    <div class="text-4xl font-extrabold text-psublue-dark font-heading" id="dash-stat-total">0</div>
+                </div>
+                <div class="w-14 h-14 rounded-2xl bg-psublue-soft text-psublue flex items-center justify-center shadow-inner">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6a1 1 0 0 1 1 1v1H8V4a1 1 0 0 1 1-1Z"/><rect x="4" y="6" width="16" height="15" rx="2"/><path d="M8 12h8M8 16h5"/></svg>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-100 flex items-center justify-between hover-card-float">
+                <div>
+                    <div class="text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">เปิดรับสมัครอยู่</div>
+                    <div class="text-4xl font-extrabold text-emerald-600 font-heading" id="dash-stat-open">0</div>
+                </div>
+                <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-inner">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-100 flex items-center justify-between hover-card-float">
+                <div>
+                    <div class="text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">ปิดรับสมัครแล้ว</div>
+                    <div class="text-4xl font-extrabold text-rose-600 font-heading" id="dash-stat-closed">0</div>
+                </div>
+                <div class="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shadow-inner">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- 📈 Charts Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover-card-float">
+                <h3 class="eyebrow justify-center mb-5 text-psublue">ประกาศงานแยกตามจังหวัด/โซน</h3>
+                <div class="relative w-full flex justify-center items-center" style="height: 250px;">
+                    <canvas id="chart-location"></canvas>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover-card-float">
+                <h3 class="eyebrow justify-center mb-5 text-psublue">สัดส่วนสถานะการรับสมัคร</h3>
+                <div class="relative w-full flex justify-center items-center" style="height: 250px;">
+                    <canvas id="chart-status"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div id="job-list-section" class="scroll-mt-24"></div>
+
+        <!-- 🔎 Search & Filter -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm mb-4 flex flex-col md:flex-row justify-between items-center gap-4 border border-slate-100">
+            <h2 class="text-base font-bold text-psublue-dark font-heading flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-psu-sky"></span>
+                รายการประกาศรับสมัครงาน / ทุนสหกิจศึกษา
+            </h2>
+            <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+                <div class="relative w-full md:w-72">
+                    <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                    <input type="text" id="search-input" onkeyup="filterJobs()" placeholder="ค้นหาบริษัท / ตำแหน่ง / สถานที่..." class="pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[13px] w-full focus:outline-none focus:ring-2 focus:ring-psublue/30 transition-all font-body">
+                </div>
+                <select id="location-filter" onchange="filterJobs()" class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[13px] focus:outline-none focus:ring-2 focus:ring-psublue/30 transition-all font-body">
+                    <option value="">ทุกสถานที่ปฏิบัติงาน</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 📋 Job Table -->
+        <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-100 mb-4 min-h-[350px]">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-[13px] font-body">
+                    <thead class="bg-slate-100/70 text-psublue-dark font-semibold border-b border-slate-200/60 font-heading whitespace-nowrap">
+                        <tr>
+                            <th class="p-4 pl-6">บริษัท / หน่วยงาน</th>
+                            <th class="p-4">ตำแหน่งงาน / ทุน</th>
+                            <th class="p-4">ประเภทงาน</th>
+                            <th class="p-4">สถานที่ปฏิบัติงาน</th>
+                            <th class="p-4">ค่าตอบแทน / เงินเดือน</th>
+                            <th class="p-4">สถานะ</th>
+                            <th class="p-4 pr-6 text-center">รายละเอียด</th>
+                        </tr>
+                    </thead>
+                    <tbody id="job-list-body" class="divide-y divide-slate-100">
+                        <tr>
+                            <td colspan="7">
+                                <div class="loading-state">
+                                    <span class="loading-spinner"></span>
+                                    <span>กำลังดึงข้อมูลประกาศงานจากฐานข้อมูล...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 📄 Pagination -->
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+            <div id="pagination-info" class="text-[13px] text-slate-400 font-medium">แสดง 0 - 0 จากทั้งหมด 0 รายการ</div>
+            <div id="pagination-buttons" class="flex gap-1.5 items-center"></div>
+        </div>
+
+    </div>
+
+    <!-- 🪟 POPUP MODAL: รายละเอียดงาน -->
+    <div id="job-detail-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] hidden flex items-center justify-center p-4" role="dialog" aria-modal="true">
+        <div class="bg-white w-full max-w-xl rounded-2xl shadow-2xl border border-slate-100 overflow-hidden transform transition-all">
+            <div class="bg-psublue-dark text-white p-6 flex justify-between items-start relative overflow-hidden">
+                <div class="relative z-10 flex items-start gap-3">
+                    <div id="modal-avatar" class="company-avatar" style="width:44px;height:44px;font-size:15px;background:#009CDE;">-</div>
+                    <div>
+                        <span id="modal-badge-status" class="status-pill status-pill--on-dark"><span class="dot"></span>เปิดรับสมัคร</span>
+                        <h3 id="modal-company-name" class="text-lg font-bold mt-1 font-heading">ชื่อบริษัท</h3>
+                        <p id="modal-position-title" class="text-sky-300 font-medium text-sm mt-0.5">ตำแหน่งงาน</p>
+                    </div>
+                </div>
+                <button onclick="closeJobDetailModal()" aria-label="ปิดหน้าต่าง" class="relative z-10 text-slate-400 hover:text-white text-2xl font-bold leading-none">&times;</button>
+            </div>
+
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-slate-600 font-body">
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <span class="block text-[11px] font-semibold text-slate-400">สถานที่ปฏิบัติงาน</span>
+                    <span id="modal-location" class="font-medium text-slate-800 mt-1 block">-</span>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <span class="block text-[11px] font-semibold text-slate-400">รูปแบบงาน</span>
+                    <span id="modal-work-format" class="font-medium text-slate-800 mt-1 block">-</span>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <span class="block text-[11px] font-semibold text-slate-400">ค่าตอบแทน / เบี้ยเลี้ยง</span>
+                    <span id="modal-salary" class="font-medium text-slate-800 mt-1 block">-</span>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <span class="block text-[11px] font-semibold text-slate-400">จำนวนอัตรา/โควต้า</span>
+                    <span id="modal-quota" class="font-medium text-slate-800 mt-1 block">-</span>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 md:col-span-2">
+                    <span class="block text-[11px] font-semibold text-slate-400">กำหนดการวันปิดรับ</span>
+                    <span id="modal-deadline" class="font-medium text-slate-800 mt-1 block">-</span>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 md:col-span-2">
+                    <span class="block text-[11px] font-semibold text-slate-400">การติดต่อ / ช่องทางสมัคร</span>
+                    <span id="modal-contact" class="font-medium text-slate-800 mt-1 block break-words">-</span>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 px-6 py-4 border-t border-slate-100 flex justify-end gap-2 font-heading">
+                <button onclick="closeJobDetailModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-xl font-semibold text-xs hover:bg-slate-300 transition-colors">
+                    ปิดหน้าต่าง
+                </button>
+                <a id="modal-apply-btn" href="#" target="_blank" rel="noopener" class="px-5 py-2 bg-psublue text-white rounded-xl font-semibold text-xs hover:bg-psublue-dark transition-colors flex items-center gap-1.5 shadow-md shadow-psublue/20">
+                    สมัครงาน / ดูช่องทางสมัคร ↗
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer-section"></div>
+
+    <!-- 🦶 Footer -->
+    <footer class="site-footer mt-0 max-w-none w-full bg-white border-t border-slate-200">
+        <div class="max-w-[1360px] mx-auto px-6 lg:px-8 pt-8">
+            <div class="site-footer__grid">
+                <div>
+                    <div class="site-footer__brand-row mb-2">
+                        <div>
+                            <p class="site-footer__title">มหาวิทยาลัยสงขลานครินทร์ วิทยาเขตสุราษฎร์ธานี</p>
+                            <p class="site-footer__sub">งานสหกิจศึกษาและฝึกงาน (CWIE)</p>
+                        </div>
+                    </div>
+                    <p>31 หมู่ 6 ตำบลมะขามเตี้ย อำเภอเมืองสุราษฎร์ธานี จังหวัดสุราษฎร์ธานี 84000</p>
+                    <p>โทร. 0-7727-8801</p>
+                </div>
+                <div class="site-footer__links">
+                    <span class="site-footer__heading">ลิงก์ที่เกี่ยวข้อง</span>
+                    <a href="https://www.psu.ac.th" target="_blank" rel="noopener">เว็บไซต์หลัก ม.อ.</a>
+                    <a href="https://sites.google.com/psu.ac.th/psusurat-2565/home" target="_blank" rel="noopener">CWIE PSU Surat </a>
+                    <a href="https://www.psu.ac.th/surat" target="_blank" rel="noopener">ม.อ. วิทยาเขตสุราษฎร์ธานี</a>
+                </div>
+                <div class="site-footer__contact">
+                    <span class="site-footer__heading">ติดต่องาน CWIE</span>
+                    <p>อีเมล: wilpsusurat@gmail.com</p>
+                    <p>เบอร์ตรง: 0812701159</p>
+                </div>
+            </div>
+            <div class="site-footer__bottom border-t border-slate-200 mt-8 pt-6 pb-8 flex flex-col md:flex-row justify-between items-center text-xs text-slate-400">
+                <span>© 2026 มหาวิทยาลัยสงขลานครินทร์ วิทยาเขตสุราษฎร์ธานี สงวนลิขสิทธิ์</span>
+                <span>ระบบ CWIE Job Management</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 🔒 สคริปต์เปิดแสดงปุ่มแอดมินเฉพาะเมื่อล็อกอินแล้ว + คีย์ลัดสำรอง -->
+    <script>
+        window.addEventListener('DOMContentLoaded', function() {
+            const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true' || sessionStorage.getItem('admin_logged_in') === 'true';
+            
+            if (isAdminLoggedIn) {
+                const adminBtn = document.getElementById('admin-shortcut-btn');
+                if (adminBtn) {
+                    adminBtn.style.display = 'flex'; // แสดงปุ่มเฉพาะแอดมิน
+                }
+            }
+        });
+
+        // ปุ่มลัดสำรอง: กด Ctrl + Shift + A เพื่อข้ามไปหน้าแอดมินได้ทันที
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.shiftKey && (e.code === 'KeyA' || e.key === 'A' || e.key === 'a')) {
+                e.preventDefault();
+                window.location.href = 'admin.html';
+            }
+        });
+    </script>
+
+    <!-- 🔗 สคริปต์หลัก -->
+    <script src="shared-utils.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>
